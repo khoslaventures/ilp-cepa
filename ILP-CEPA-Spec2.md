@@ -37,7 +37,6 @@ The protocol should support two kinds of interactions:
 
 ### Option A: ILP Over STREAM over ILP (VPN style)
 
-![Uh oh...](images/protocolA_pt1.png)
 1)  We establish a STREAM connection between Source and OR1, OR1 and OR2, OR_i and OR_i+1, and OR_n and Destination. 
 STREAM has a way to send arbitrary data and/or money over a connection. 
 (1) Source sends a packet over STREAM, where the data payload resembles an ILP prepare statement. This gets routed (over STREAM over ILP) to OR1. 
@@ -46,7 +45,6 @@ STREAM has a way to send arbitrary data and/or money over a connection.
 (4) resolve the money at eaach step. 
 
 ### Option B: Onion-routing Over STREAM over ILP (TOR style)
-![Uh oh...](images/protocolA_pt1.png)
 Here, the sender is directly sending money/data to the destination. 
 The sender creates a payload which encodes this money/data. 
 The sender onion wraps this payload with the keys of all the ORs on the path. 
