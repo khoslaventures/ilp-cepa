@@ -2,7 +2,7 @@
 
 ## Overview
 
-Cepa is a protocol that uses onion routing as a network overlay to privately route execution conditions for off-chain Interledger transactions. The original set of details for the Interledger Protocol (ILP) can be found [here](https://github.com/interledger). The purpose of this protocol is to be able to make payments over ILP such that an on/off-path adversary would not be able to construct the exact interconnected graph of payment flow. This ensures a degree of anonymity and privacy equivalent to that of mix-nets.
+Cepa is a protocol that uses onion routing as a network overlay to privately route payments for off-chain Interledger transactions. The original set of details for the Interledger Protocol (ILP) can be found [here](https://github.com/interledger). The purpose of this protocol is to be able to make payments over ILP such that an on/off-path adversary would not be able to construct the exact interconnected graph of payment flow. This ensures a degree of anonymity and privacy equivalent to that of mix-nets. Our goal here is to optimize for the same guarntees offered by any mixnet construction, not necessarily through an optimal algorithm until the time comes for a production ready variant.
 
 ## Threat Model
 
@@ -11,22 +11,25 @@ Cepa is a protocol that uses onion routing as a network overlay to privately rou
 The protocol makes the following assumptions on network adversaries:
 
 - Off-route passive observers constantly monitor traffic from every on-route node.
+- On-route observers will only know the previous and next hops for their
+  retrieved packet.
 - Every ILP node can retain message information for an indefinite amount of time.
 - ILP nodes may be controlled by adversaries, but it is statistically unlikely that all nodes along the path are controlled by the same adversary.
 
-### Security Guarantees
+### Security
 
 - Participants in a route don't know their exact position within the route
 - Participants within a route don't know the source of the payment, nor the ultimate destination of the payment
 - Participants within a route aren't away exactly how many other participants were involved in the payment route
-- Participants within a route don't even know that they are within a route! That is to say, an ILP node running Onion Routing compatible software cannot tell whether the packets it is passing along Onion Routed packets or regular STREAM packets... If we can prove this, that'd be pretty cool. The internet today, it's pretty obvious to tell that you're using TOR, just because the protocols are so different from, say, VPN protocols. But in this model, the traffic would be indistinguishable, even to an on path Onion Router.
+- Participants within a route don't even know that they are within a route!
+    - That is to say, an ILP node running Onion Routing compatible software cannot tell whether the packets it is passing along Onion Routed packets or regular STREAM packets... If we can prove this, that'd be pretty cool. The internet today, it's pretty obvious to tell that you're using TOR, just because the protocols are so different from, say, VPN protocols. But in this model, the traffic would be indistinguishable, even to an on path Onion Router.
 - At best, even the receiver would only know a throwaway wallet address from payment channel state, assuming the user has done best practices outside of the protocol.
-
 - Ephemeral Diffie–Hellman for forward secrecy
 
-    This protocol is **NOT** secure against timing analysis or *OR* collusion.
+This protocol is **NOT** secure against timing analysis or *OR* collusion.
 
 ## Phases
+
 1. Onion Routing Setup
  - Choose >1 ILP nodes to act as Onion Routers (ORs)
  - Find ILP addresses of each OR along the route.
@@ -66,19 +69,19 @@ STREAM has a way to send arbitrary data and/or money over a connection.
 (4) resolve the money at eaach step.
 
 ### Option B: Onion-routing Over STREAM over ILP (TOR style)
+
 Here, the sender is directly sending money/data to the destination.
 The sender creates a payload which encodes this money/data.
 The sender onion wraps this payload with the keys of all the ORs on the path.
 The sender sends this payload over STREAM.
 The Onion Routers unwrap and pass the message along until it reaches the destination.
 
-
 ## Packet Structure
 - We need to ensure that 'VPN' style packets are indistinguishable from TOR style packets. At the very least, this means padding to equal length, but it might involve more careful consideration. A good thing to add to our testing strategy would be setting up an adversary who intercepts both styles of packets, and tries to distinguish them based on various properties.
 
 ### Payload Construction
 
-## Other Details
+## Appendix
 
 ### Why not just run this all over onion routing
 
