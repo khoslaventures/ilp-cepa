@@ -15,4 +15,4 @@ module.exports = (namespace) => {
   }
 
   return { extend, log };
-}
+};

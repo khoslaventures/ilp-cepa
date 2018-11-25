@@ -2,10 +2,10 @@
 const nameSpaces = [
   'connectorMock',
   'connectorMock:*'
-]
+].join(',');
 
 /* CONNECTOR */
-const defaultBackend = 'one-to-one'
+const defaultBackend = 'one-to-one';
 const defaultIlpAddress = 'test.cepa';
 const defaultStorePath = './data';
 const defaultSpread = 0;
@@ -15,32 +15,19 @@ const defaultAppConfig = {
   backend: defaultBackend,
   spread: defaultSpread,
   storePath: defaultStorePath
-}
+};
 
 /* ACCOUNTS */
-const defaultAccountPlugin = 'ilp-plugin-btp';
-const defaultAccountOpts = {
-  relation: 'child',
-  assetScale: 9,
-  assetCode: 'XRP',
-  plugin: defaultAccountPlugin,
-  options: {
-    info: {
-      prefix: ''
-    },
-    account: '',
-    balance: {
-      minimum: '-Infinity',
-      maximum: 'Infinity',
-      settleThreshold: '-Infinity'
-    }
-  }
-}
+const defaultAccountPluginName = 'ilp-plugin-mini-accounts';
+const defaultListenerPort = 3000;
+const defaultsharedSecret = 'secret';
 
 module.exports = {
-  lineDelimiter: '➤',
-  ilpAddress: defaultIlpAddress,
   accountConfig: defaultAppConfig,
-  accountOpts: defaultAccountOpts,
-  nameSpace: nameSpaces.join(',')
-}
+  pluginName: defaultAccountPluginName,
+  ilpAddress: defaultIlpAddress,
+  lineDelimiter: '➤',
+  listenerPort: defaultListenerPort,
+  nameSpace: nameSpaces,
+  sharedSecret: defaultsharedSecret
+};

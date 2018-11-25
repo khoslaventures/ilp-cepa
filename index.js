@@ -6,6 +6,10 @@ const crypto = require('crypto');
 const connectorMock = require('./src/connector-mock');
 
 const CONFIG = require('./config');
+const accounts = [
+  'alice',
+  'bob'
+];
 
 function sha256 (preimage) { return crypto.createHash('sha256').update(preimage).digest(); }
 
@@ -18,7 +22,14 @@ const fulfill = ilpPacket.serializeIlpFulfill({
   data: Buffer.from('thank you')
 });
 
-connectorMock('ilp-plugin-btp').then(connector => {
+connectorMock(accounts, CONFIG.defaultPlugin).then(connector => {
+  // ildcp.fetch(connector.getPlugin('alice').sendData.bind(connector)).then(({ clientAddress, assetCode, assetScale }) => {
+  //   console.log(clientAddress);
+  // });
+  connector.getPlugin(accounts[0]).sendData(ildcp.serializeIldcpRequest()).then(fulfill => {
+    console.log(ildcp.deserializeIldcpResponse(fulfill));
+  });
+
   // connector.getPlugin('bob').registerDataHandler(data => {
   //   console.log('data showed up at bob!', ilpPacket.deserializeIlpPrepare(data));
   //   return fulfill;
@@ -26,18 +37,18 @@ connectorMock('ilp-plugin-btp').then(connector => {
   // connector.getPlugin('bob').registerMoneyHandler(amount => {
   //   console.log('money showed up at bob!', amount);
   // });
-  connector.getPlugin('bob').sendData(ildcp.serializeIldcpRequest()).then(fulfill => {
-    const bobInfo = ildcp.deserializeIldcpResponse(fulfill);
-    const prepare = ilpPacket.serializeIlpPrepare({
-      amount: '10',
-      executionCondition: condition,
-      destination: bobInfo.clientAddress,
-      data: Buffer.from(['hello, World!']),
-      expiresAt: new Date(new Date().getTime() + 10000)
-    });
-    // connector.getPlugin('alice').mirror.sendData(prepare).then(fulfillmentPacket => {
-    //   console.log('It worked!', ilpPacket.deserializeIlpFulfill(fulfillmentPacket).fulfillment)
-    //   connector.shutdown();
-    // })
-  })
+  // connector.getPlugin('bob').sendData(ildcp.serializeIldcpRequest()).then(fulfill => {
+  //   const bobInfo = ildcp.deserializeIldcpResponse(fulfill);
+  //   const prepare = ilpPacket.serializeIlpPrepare({
+  //     amount: '10',
+  //     executionCondition: condition,
+  //     destination: bobInfo.clientAddress,
+  //     data: Buffer.from(['hello, World!']),
+  //     expiresAt: new Date(new Date().getTime() + 10000)
+  //   });
+  //   connector.getPlugin('alice').mirror.sendData(prepare).then(fulfillmentPacket => {
+  //     console.log('It worked!', ilpPacket.deserializeIlpFulfill(fulfillmentPacket).fulfillment)
+  //     connector.shutdown();
+  //   })
+  // });
 });
