@@ -55,7 +55,7 @@ This protocol is **NOT** secure against timing analysis or *OR* collusion.
 
 A single onion routed hop represents over potentially several ILP hops.
 
-![Uh oh...](images/basic_diagram.png)
+![Uh oh...](img/protocol_overview.png)
 
 The protocol should support two kinds of interactions:
 
