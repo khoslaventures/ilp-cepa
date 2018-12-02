@@ -5,6 +5,7 @@ const ilpPacket = require('ilp-packet');
 const ildcp = require('ilp-protocol-ildcp');
 const ilpStream = require('ilp-protocol-stream');
 const PluginBtp = require('ilp-plugin-btp');
+const { Reader, Writer } = require('oer-utils');
 const Prometheus = require('prom-client');
 
 const { generateRandomBytes, sha256 } = require('./utils/crypto-utils');
@@ -49,23 +50,30 @@ async function main () {
   Prometheus.register.clear();
   const connectorChildB = await mockConnector(connectorAccountListChildB);
 
+  /* ILP/ILDCP Experiment */
+
   const ildcpRequest = await connectorChildA.getPlugin('aliceLocal').sendData(ildcp.serializeIldcpRequest());
   const ildcpResponse = await ildcp.deserializeIldcpResponse(ildcpRequest);
   console.log('ILDCP works!', ildcpResponse);
 
   const fulfillment = generateRandomBytes();
   const condition = sha256(fulfillment);
+  const writer = new Writer();
+  writer.write(Buffer.from('ECHOECHOECHOECHO', 'ascii'));
+  writer.writeUInt8(0x00);
   const prepare = ilpPacket.serializeIlpPrepare({
     amount: '10',
     executionCondition: condition,
     destination: ildcpResponse.clientAddress,
-    data: Buffer.from('ECHOECHOECHOECHOhello, World!          ', 'ascii'),
+    data: writer.getBuffer(),
     expiresAt: new Date(new Date().getTime() + 10000000000)
   });
 
   const prepareRequest = await connectorChildB.getPlugin('bobLocal').sendData(prepare);
   const prepareResponse = await ilpPacket.deserializeIlpPacket(prepareRequest);
   console.log(prepareResponse);
+
+  /* STREAM Experiment */
 
   // const btpA = new PluginBtp({
   //   server: `btp+ws://:blah@localhost:${portC}`
