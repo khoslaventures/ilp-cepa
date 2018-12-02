@@ -3,16 +3,24 @@
 const CONFIG = require('../config');
 
 module.exports = (namespace) => {
+  let logger = require('debug')(CONFIG.namespace);
 
-  let logger = require('debug')(namespace);
+  logger = logger.extend(namespace);
 
-  function extend (extension) {
-    logger.extend(extension);
+  function lineBreak () {
+    console.log('\n');
   }
 
-  function log (line) {
-    logger(`${CONFIG.lineDelimiter}  ${line}`);
+  function log (loggedLine) {
+    const inputType = typeof loggedLine;
+    switch (inputType) {
+      case 'object':
+        logger(`${CONFIG.lineDelimiter}  %o`, loggedLine);
+        break;
+      default:
+        logger(`${CONFIG.lineDelimiter}  ${loggedLine}`);
+    }
   }
 
-  return { extend, log };
+  return { lineBreak, log };
 };

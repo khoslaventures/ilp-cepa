@@ -1,33 +1,49 @@
+const projectName = 'cepa';
+const defaultIlpPrefix = `example.${projectName}`;
+
 /* LOGGER */
-const nameSpaces = [
-  'connectorMock',
-  'connectorMock:*'
-].join(',');
+const defaultLineDelimiter = '➤';
 
 /* CONNECTOR */
 const defaultBackend = 'one-to-one';
-const defaultIlpAddress = 'test.cepa';
+const defaultAdminApiPort = 3000;
+const defaultIlpAddress = `${defaultIlpPrefix}.~`;
 const defaultStorePath = './data';
 const defaultSpread = 0;
-const defaultAppConfig = {
+const defaultConnectorConfig = {
   ilpAddress: defaultIlpAddress,
   accounts: {},
+  // adminApi: true,
+  // adminApiPort: defaultAdminApiPort,
   backend: defaultBackend,
-  spread: defaultSpread,
-  storePath: defaultStorePath
+  // storePath: defaultStorePath,
+  store: 'ilp-store-memory',
+  spread: defaultSpread
 };
 
 /* ACCOUNTS */
-const defaultAccountPluginName = 'ilp-plugin-mini-accounts';
-const defaultListenerPort = 3000;
-const defaultsharedSecret = 'secret';
+const defaultAssetCode = 'XRP';
+const defaultAssetScale = 9;
+const defaultPluginBTP = 'ilp-plugin-btp';
+const defaultPluginMA = 'ilp-plugin-mini-accounts';
+
+/* PLUGIN OPTIONS */
+const defaultListenerPort = 3001;
+const defaultSharedSecret = 'secret';
 
 module.exports = {
-  accountConfig: defaultAppConfig,
-  pluginName: defaultAccountPluginName,
-  ilpAddress: defaultIlpAddress,
-  lineDelimiter: '➤',
+  namespace: projectName,
+  /* LOGGER */
+  lineDelimiter: defaultLineDelimiter,
+  /* CONNECTOR */
+  connectorConfig: defaultConnectorConfig,
+  /* ACCOUNTS */
+  assetCode: defaultAssetCode,
+  assetScale: defaultAssetScale,
+  ilpPrefix: defaultIlpPrefix,
+  defaultPlugin: defaultPluginBTP,
+  childPlugin: defaultPluginMA,
+  /* PLUGIN OPTIONS */
   listenerPort: defaultListenerPort,
-  nameSpace: nameSpaces,
-  sharedSecret: defaultsharedSecret
+  sharedSecret: defaultSharedSecret
 };

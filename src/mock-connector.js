@@ -1,15 +1,18 @@
 'use strict';
 
 const ilpConnector = require('ilp-connector');
-const logger = require('../utils/custom-logger')('connectorMock');
-const appConfigBuilder = require('../utils/app-config-builder');
 
-module.exports = (accounts, plugin) => {
-  const connector = ilpConnector.createApp(appConfigBuilder(accounts, plugin));
+const logger = require('../utils/custom-logger')('mock');
+const pluginUtils = require('../utils/plugin-utils');
+
+module.exports = async (accountList, ilpAddress) => {
+  const config = pluginUtils.configConnector(accountList, ilpAddress);
+  const connector = ilpConnector.createApp(config);
 
   let shuttingDown = false;
 
   process.on('SIGINT', async () => {
+    logger.lineBreak();
     try {
       if (shuttingDown) {
         logger.log('received second SIGINT during graceful shutdown, exiting forcefully...');

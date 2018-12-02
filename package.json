@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "DEBUG=connectorMock node .",
+    "start": "DEBUG=cepa* node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/khoslaventures/ilp-cepa",
   "dependencies": {
-    "ilp-plugin-mirror": "^1.0.0",
+    "ilp-protocol-stream": "^1.8.9",
     "ilp-plugin-mini-accounts": "^4.0.1",
     "ilp-connector": "^22.1.3"
   },
