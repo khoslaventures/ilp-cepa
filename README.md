@@ -6,6 +6,7 @@ Interledger.
 ## TODOs
 
 - [x] Get base layer STREAM running
+- [ ] Combine server and client into one monolithic client
 - [ ] Write onion interactions on top of STREAM
 - [ ] Write ILP interactions on top of STREAM
 - [ ] Merge with ilp-connector/SPSP server (use real shared secrets and full protocol)
