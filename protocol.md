@@ -89,3 +89,36 @@ We wanted to set the grounds for a full privacy framework on Interledger and
 we needed to have senders, receivers and connectors all involved on the same
 networks. We see onion routing as a starting point for conducting private
 payments over the Interledger.
+
+## Protocol Details
+
+#### 1. Onion Routing Setup
+
+ - Choose >1 ILP nodes to act as Onion Routers (ORs)
+	 - A centralized server (maybe just a key-value store exposing a REST endpoint) contains a mapping of nodes to ILP addresses for all Cepa-compatible nodes. 
+	 - Server requests mapping from server, and picks >3 nodes at random to use as Onion Routers. 
+ - Find ILP address of each OR along the route 
+	 - Read off the values from the server's response
+ - Establish shared secrets with each OR.
+	 - Negotiate a symmetric key with each OR on the circuit using DHE
+	  ![Uh oh...](img/dhke.png)
+	  To establish shared secrets with each OR without the circuit being discoverable to an adversary, the keys need to be established incrementally. 
+	  ![Uh oh...](img/tor_dhke.png)
+	  All the messages required to negotiate the keys will be sent by sending an ILP Prepare packet with a `StreamData` frame in the STREAM packet. All STREAM packets are encrypted using AES-256-GCM with a 12-byte Initialization Vector (IV) and a 16-Byte Authentication Tag.
+
+	 - 
+#### 2. Source-Destination Setup
+- Choose *Destination* and amount to send
+- Pre-image Hash Exchange
+Both of these steps  can be done out of channel, in the same way ILP currently does it 
+#### 3. Routing
+##### Routing A:
+   - Use this circuit as a VPN by sending ILP packets over STREAM 
+   - 
+##### Routing B:
+   - Use this circuit as a TOR relay
+   -  Sender has established ephemeral keys for OR node in the previous step. They can now wrap a message by incrementally encrypting it with each key. This wrapped message is sent to the first cepa node. This node will decrypt it (how does it know to decrypt it? Need some indicator that it's an onion packet), then forward it (how does it know where to forward it to? Needs some pointer to the next hop)
+   - Destination receives original plaintext data. What is this data? Could be an ILP Prepare message to open a payment channel directly with the sender.
+
+### Transaction model: 
+Transactions don't need to be atomic under STREAM. Instead, payments are streamed as a series of micropayments. If a malicious connector steals money in the middle of the transaction, the sender will be alerted and can stop sending payments through that node, so that only a tiny amount of money is lost. The transaction can still complete through other routes. 
