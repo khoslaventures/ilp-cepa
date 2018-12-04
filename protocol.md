@@ -18,17 +18,21 @@ The protocol makes the following assumptions on network adversaries:
 
 ### Security
 
+Our security metrics are based on the following:
 - Participants in a route don't know their exact position within the route
-- Participants within a route don't know the source of the payment, nor the ultimate destination of the payment
-- Participants within a route aren't away exactly how many other participants were involved in the payment route
-- Participants within a route don't even know that they are within a route!
-    - That is to say, an ILP node running Onion Routing compatible software cannot tell whether the packets it is passing along Onion Routed packets or regular STREAM packets... If we can prove this, that'd be pretty cool. The internet today, it's pretty obvious to tell that you're using TOR, just because the protocols are so different from, say, VPN protocols. But in this model, the traffic would be indistinguishable, even to an on path Onion Router.
+- Participants within a route only know their neighbors, and cannot distinguish the sender of the payment, nor the receiver of the payment
+- Participants within a route don't know how many participants were involved in the entire payment route
 - At best, even the receiver would only know a throwaway wallet address from payment channel state, assuming the user has done best practices outside of the protocol.
-- Ephemeral Diffie–Hellman for forward secrecy
+- We use Ephemeral EC-Diffie–Hellman for forward secrecy so that if a connector is compromised it won't leak future counterparty information.
+
+Optionally, if we have time:
+Participants within a route don't even know that they are within a route, as the packet formats would be indistinguishable from that of vanilla ILP. That is to say, an ILP node running Onion Routing compatible software cannot tell whether the packets it is passing along Onion Routed packets or regular STREAM packets.
+
+If we can prove this, that'd be pretty cool. The internet today, it's pretty obvious to tell that you're using TOR, just because the protocols are so different from, say, VPN protocols. But in this model, the traffic would be indistinguishable, even to an on path Onion Router.
 
 This protocol is **NOT** secure against timing analysis or *OR* collusion.
 
-## Phases
+## Phases Overview
 
 1. Onion Routing Setup
  - Choose >1 ILP nodes to act as Onion Routers (ORs)
@@ -77,7 +81,7 @@ The sender sends this payload over STREAM.
 The Onion Routers unwrap and pass the message along until it reaches the destination.
 
 ## Packet Structure
-- We need to ensure that 'VPN' style packets are indistinguishable from TOR style packets. At the very least, this means padding to equal length, but it might involve more careful consideration. A good thing to add to our testing strategy would be setting up an adversary who intercepts both styles of packets, and tries to distinguish them based on various properties.
+We need to ensure that 'VPN' style packets are indistinguishable from TOR style packets. At the very least, this means padding to equal length, but it might involve more careful consideration. A good thing to add to our testing strategy would be setting up an adversary who intercepts both styles of packets, and tries to distinguish them based on various properties.
 
 ### Payload Construction
 
