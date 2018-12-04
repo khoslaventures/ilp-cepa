@@ -1,4 +1,6 @@
-const { createConnection } = require('ilp-protocol-stream')
+const {
+  createConnection
+} = require('ilp-protocol-stream')
 const getPlugin = require('ilp-plugin')
 
 
@@ -10,7 +12,7 @@ const destinationAccount = data.destAcct
 console.log(sharedSecret)
 console.log(destinationAccount)
 
-async function run () {
+async function run() {
   const connection = await createConnection({
     plugin: getPlugin(),
     destinationAccount,
