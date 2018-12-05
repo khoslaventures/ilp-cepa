@@ -4,7 +4,7 @@
   "description": "Onion routing over the interledger",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "Akash Khosla",
   "license": "ISC",
@@ -12,5 +12,8 @@
   "dependencies": {
     "ilp-plugin": "^3.2.1",
     "ilp-protocol-stream": "^1.8.7"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0"
   }
 }
