@@ -5,8 +5,8 @@ const crypto = require('crypto');
 Error.stackTraceLimit = Infinity;
 
 
-const destinationAccount = "private.moneyd.local.dMJUWXNuo9yI1qxJsks3T_LOoW4mdaxThgljTvwYSWk.owKvaj83sdYm8KJF-p1zfa5s"
-const sharedSecret = Buffer.from([196,78,96,140,64,133,12,98,94,144,108,121,183,0,191,127,237,104,117,43,92,151,180,131,193,244,172,133,170,10,246,11])
+const destinationAccount = "private.moneyd.local.a8wgoi_hwhh9ZqIm_b6y4_vm-Lt9a_RgRq2k_5AX23s.qX9GOs3lT-6dMBN3vLWL_VpP"
+const sharedSecret = Buffer.from([240,115,67,81,200,220,53,198,15,26,245,219,1,141,180,151,139,27,64,13,234,218,116,96,94,120,178,204,217,34,83,27])
 
 console.log(sharedSecret)
 console.log(destinationAccount)
