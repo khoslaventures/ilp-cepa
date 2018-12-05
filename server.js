@@ -1,5 +1,8 @@
 const { createServer } = require('ilp-protocol-stream')
 const getPlugin = require('ilp-plugin')
+const crypto = require('crypto');
+
+Error.stackTraceLimit = Infinity;
 
 async function run () {
   const server = await createServer({
