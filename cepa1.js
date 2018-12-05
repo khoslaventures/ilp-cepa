@@ -5,8 +5,8 @@ const crypto = require('crypto');
 Error.stackTraceLimit = Infinity;
 
 
-const destinationAccount = "private.moneyd.local.Alhb6C2esm_wbVytNHaCpBHc-C1TJBwtjbqKkRlzp_E.REl1XygLanGonk5tKApCl3nr"
-const sharedSecret = Buffer.from([184,198,175,104,65,158,186,108,66,31,180,246,158,59,178,184,69,133,254,99,228,172,109,180,223,109,5,79,126,230,43,177])
+const destinationAccount = "private.moneyd.local.cM_oS2RmgSf0IyVsuQaQ0ANTshfZW1qZPe38aTuvoh8.O6n-uBOsjK44Hn-cGtydO7V9"
+const sharedSecret = Buffer.from([39,4,29,164,86,255,218,99,84,74,242,162,123,189,206,230,61,70,75,142,236,192,244,171,125,189,36,137,10,219,146,51])
 
 console.log(sharedSecret)
 console.log(destinationAccount)
@@ -27,10 +27,17 @@ async function handle_data(encypted_msg, mySharedSecret) {
 
   console.log("received nextHop:"+ nextHop)
   console.log("known nextHop:"+ destinationAccount)
+  
+  if (!nextHop) {
+    console.log("done!")
+    console.log("data:"+ msg)
+
+    return
+  }
 
   const connection = await createConnection({
     plugin: getPlugin(),
-    destinationAccount,
+    destinationAccount: nextHop,
     sharedSecret
   })
 

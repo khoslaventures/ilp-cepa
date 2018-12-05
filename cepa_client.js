@@ -1,17 +1,26 @@
 const { createConnection} = require('ilp-protocol-stream')
 const getPlugin = require('ilp-plugin')
 const crypto = require('crypto');
+const assert = require('assert');
 Error.stackTraceLimit = 100;
 
 
-const destinationAccount = "private.moneyd.local.Yf2p6YWjkt6038QrKOOgG7cCRkGDr5lHRlRMxTgaDUw.WiBEoA41hhzBhUeFNi6EhuVT"
-const destSharedSecret = Buffer.from([203,187,221,142,90,241,13,30,193,137,190,47,60,205,162,204,170,31,245,180,62,107,123,131,56,134,182,38,217,58,81,68])
+const destinationAccount = "private.moneyd.local.Biqm4Luuc0AaQp65uiZGee64dKFlfHNgSXAc-y8xI6w.A4Vx3SCPWWNLAelUQZFB1jwt"
+const destSharedSecret = Buffer.from([148,55,238,47,161,137,32,26,82,161,31,235,30,209,211,235,61,218,225,246,162,17,67,159,232,121,113,222,91,251,87,112])
 
-const cepa_1Account = "private.moneyd.local.zlkzDnr5Q1sUjH3HAKvOxghEAESLUMefXEHRbYjJsZ4.-dTIHUmSGnEAgWwF8p6e8QaF"
-const cepa_1SharedSecret = Buffer.from([209,20,189,105,185,18,230,125,109,182,116,146,67,105,187,129,102,137,201,164,13,113,16,28,141,112,132,211,198,27,126,184])
+const cepa_1Account = "private.moneyd.local.0NRDvqUU8w47RfvPCDe-Bsm6KZyZPn_8AUVy_ult4A4.DEv8zyv5dGHbMLNC5dAlgOAf"
+const cepa_1SharedSecret = Buffer.from([204,84,72,13,144,184,58,86,105,19,102,199,16,33,117,74,57,95,206,98,166,85,175,66,247,196,4,201,21,54,223,103])
 
-const cepa_2Account = "private.moneyd.local.Alhb6C2esm_wbVytNHaCpBHc-C1TJBwtjbqKkRlzp_E.REl1XygLanGonk5tKApCl3nr"
-const cepa_2SharedSecret = Buffer.from([184,198,175,104,65,158,186,108,66,31,180,246,158,59,178,184,69,133,254,99,228,172,109,180,223,109,5,79,126,230,43,177])
+const cepa_2Account  = "private.moneyd.local.cM_oS2RmgSf0IyVsuQaQ0ANTshfZW1qZPe38aTuvoh8.O6n-uBOsjK44Hn-cGtydO7V9"
+const cepa_2SharedSecret = Buffer.from([39,4,29,164,86,255,218,99,84,74,242,162,123,189,206,230,61,70,75,142,236,192,244,171,125,189,36,137,10,219,146,51])
+
+const accounts = [cepa_1Account, cepa_2Account, destinationAccount]
+const secrets = [cepa_1SharedSecret, cepa_2SharedSecret, destSharedSecret]
+
+//assert.isEqual(accounts.length, secrets.length)
+if (accounts.length != secrets.length) {
+  console.log("ERROR: invalid key/secrets initialization")
+}
 
 function encrypt(data, key) {
   //Encrypts data with key, using AES-256 in counter mode 
@@ -22,26 +31,31 @@ function encrypt(data, key) {
 }
 
 function construct_onion_packet(msg) {
-  payload = {
-    msg: msg, 
-    nextHop: "lol_this_doesn't_actually_matter"
-  }
-  encrypted_msg = encrypt(JSON.stringify(payload), cepa_2SharedSecret)
-  console.log ("encrypted_with_cepa_2:" + encrypted_msg)
+  //creates onion wrapped encrypted messages, 
+  //using the addresses in accounts for nextHops, 
+  //and using the keys in secrets as the ephemeral symmetric keys. 
+  //currently the keys are just the shared secrets, but at some point 
+  //they should be replaced with real DHKE keys. 
 
-  payload = {
-    msg: encrypted_msg, 
-    nextHop: "lol_this_doesn't_actually_matter"
+
+  //TODO: padding
+  for (i = accounts.length - 1; i >= 0; i--) {
+    nextHop = i >= accounts.length - 1 ? "" : accounts[i + 1]
+    encryption_key = secrets[i]
+    payload = {
+      msg : msg, 
+      nextHop: nextHop
+    }
+    msg = encrypt(JSON.stringify(payload), encryption_key)
   }
-  encrypted_msg = encrypt(JSON.stringify(payload), cepa_1SharedSecret)
-  console.log ("encrypted_with_cepa_2_and_cepa1:" + encrypted_msg)
-  return encrypted_msg
+   
+  console.log(msg)
+  return msg
 }
-
 
 async function run() {
   const msg = "hello world"
-  console.log ("msg:" + msg)
+  console.log ("msg: " + msg)
   const onion_msg = construct_onion_packet(msg)
 
   //create connection with the first hop cepa router
@@ -53,7 +67,6 @@ async function run() {
   const stream = connection.createStream()
 
   stream.write(onion_msg)
-  //stream.write(msg)
   stream.end()
 }
 
