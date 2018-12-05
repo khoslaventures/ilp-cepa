@@ -1,45 +1,24 @@
 const { createConnection} = require('ilp-protocol-stream')
 const { createServer } = require('ilp-protocol-stream')
+
 const getPlugin = require('ilp-plugin')
-const crypto = require('crypto');
 Error.stackTraceLimit = Infinity;
 
+const destinationAccount = "private.moneyd.local.gad58FDk4_f-w9MQYgSt40g91oHkMdCuJekUa97Zlho.6HvCj5FOkbUqXYndxWcihUgt"
+const sharedSecret = Buffer.from([254,244,63,59,37,149,168,44,107,90,157,157,249,61,57,203,136,161,220,188,108,209,70,214,102,48,141,184,214,165,198,170])
 
-const destinationAccount = "private.moneyd.local.MkIapU0PqEV9exxYp2ORuF-hVN0r05zeXVs0K0yX4K0.ZxJPtnB-ffblv4cVbzJTM9aQ"
-const destSec = {
-  "type": "Buffer", 
-  "data": [81,122,233,216,236,99,119,84,111,99,136,101,53,26,156,125,110,113,243,233,182,137,143,209,245,140,132,214,157,61,150,8]
-}
-const destSharedSecret = Buffer.from(destSec)
-
-console.log(destSharedSecret)
+console.log(sharedSecret)
 console.log(destinationAccount)
 
-function decrypt(text, key) {
-  //Decrypts AES-256 in counter mode encrypted data, using the given key
-  var decipher = crypto.createDecipher(algorithm,password)
-  var dec = decipher.update(text,'hex','utf8')
-  dec += decipher.final('utf8');
-  console.log("decrypted data is:" + dec)
-  return dec;
-}
-
-async function handle_data(data, mySharedSecret) {
-  const serialized_decrypted_data = decrypt(data, mySharedSecret)
-  const decrypted_data = JSON.parse(serialized_decrypted_data)
-  const {payload, nextHop} = decrypted_data
-
-  console.log("received nextHop:"+ nextHop)
-  console.log("known nextHop:"+ destinationAccount)
-
+async function forward(msg) {
   const connection = await createConnection({
     plugin: getPlugin(),
     destinationAccount,
-    destSharedSecret
+    sharedSecret
   })
 
   const stream = connection.createStream()
-  stream.write(payload)
+  stream.write(msg)
   stream.end()
 }
 
@@ -70,8 +49,8 @@ async function run () {
       })
 
       stream.on('data', (chunk) => {
-        console.log(`got encypted data on stream ${stream.id}: ${chunk.toString('utf8')}`)
-        handle_data(chunk.toString('utf8'), sharedSecret)
+        console.log(`got data on stream ${stream.id}: ${chunk.toString('utf8')}`)
+        forward(chunk.toString('utf8'))
       })
 
       stream.on('end', () => {

@@ -1,59 +1,30 @@
-const { createConnection} = require('ilp-protocol-stream')
+const {
+  createConnection
+} = require('ilp-protocol-stream')
 const getPlugin = require('ilp-plugin')
-const crypto = require('crypto');
-Error.stackTraceLimit = Infinity;
 
 
-const destinationAccount = "private.moneyd.local.MkIapU0PqEV9exxYp2ORuF-hVN0r05zeXVs0K0yX4K0.ZxJPtnB-ffblv4cVbzJTM9aQ"
-const destSec = {
-  "type": "Buffer", 
-  "data": [81,122,233,216,236,99,119,84,111,99,136,101,53,26,156,125,110,113,243,233,182,137,143,209,245,140,132,214,157,61,150,8]
-}
-const destSharedSecret = Buffer.from(destSec)
+const serializedObj = '{"destAcct":"privateone.moneyd.local.ikSb7Lk1JkBroK5EwE5eJYZ7_KR3iefMZc_VmkRgPig.jlCWLsnx027wwtH_Q13rCgEF","sec":{"type":"Buffer","data":[2,42,3,215,144,131,43,54,173,103,171,20,146,146,3,45,13,120,35,136,189,123,62,95,202,192,215,16,221,168,48,45]}}'
 
+const data = JSON.parse(serializedObj);
 
-const cepa_1Account = "private.moneyd.local.jHLzglnFLbR2VyyZdyl8Y2PL4tOQsTziz9-7GWTudO4.M6BCIIDi5O35Sk-YLDjnxZ6V"
-const cepa_1Sec = {
-  "type": "Buffer", 
-  "data": [125,86,168,215,235,223,72,13,46,9,231,137,127,165,157,217,113,24,108,78,69,139,1,50,38,13,221,123,39,186,66,34]
-}
-const cepa_1SharedSecret = Buffer.from(cepa_1Sec)
-
-function encrypt(data, key) {
-  //Encrypts data with key, using AES-256 in counter mode 
-  var cipher = crypto.createCipher(algorithm,password)
-  var crypted = cipher.update(text,'utf8','hex')
-  crypted += cipher.final('hex');
-  return crypted;
-}
-
-
-async function construct_onion_packet(msg) {
-
-  const encrypted_msg = encrypt(msg, cepa_1SharedSecret)
-  payload = {
-    "msg": encrypted_msg, 
-    "nextHop": destinationAccount
-  }
-  return JSON.stringify(payload)
-}
-
+const sharedSecret = Buffer.from([21,210,191,124,231,42,231,127,252,38,92,176,91,26,33,239,104,153,96,32,117,29,77,47,30,36,0,108,188,208,244,48])
+const destinationAccount = "private.moneyd.local.QmFUjiVuTvvPj9GgMPzlEfvpLbelAcqOZL_jDuLjcc4._XpDWu_izM-_FSHjHXTHnIzk"
+console.log(sharedSecret)
+console.log(destinationAccount)
 
 async function run() {
   const connection = await createConnection({
     plugin: getPlugin(),
-    cepa_1Account,
-    cepa_1SharedSecret
+    destinationAccount,
+    sharedSecret
   })
 
-  
   const stream = connection.createStream()
-
-  const msg = "hello world"
-  const onion_msg = construct_onion_packet(msg)
-  
-  //stream.write(onion_msg)
-  stream.write(msg)
+  stream.write('hello\n')
+  // stream.write('here is some more data')
+  // await stream.sendTotal(100)
+  // await stream.sendTotal(200)
   stream.end()
 }
 
