@@ -30,7 +30,7 @@ resource "digitalocean_droplet" "end" {
       "screen -S moneyd -dm moneyd xrp:start --testnet", # May need to wait?
       "git clone https://github.com/khoslaventures/ilp-cepa.git",
       "cd ilp-cepa",
-      "pwd"
+      "npm "
     ]
   }
 
