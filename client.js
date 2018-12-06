@@ -12,23 +12,26 @@ class Client {
   //   this.connection = null
   // }
 
-  constructor(shared_secret, destination_account) {
-    this.sharedSecret = shared_secret
-    this.destinationAccount = destination_account
+  // When the client start, assume all the servers have been created
+  // TODO: Takes in a map of shared secrets and destinations, which is ordered
+  constructor(sharedSecret, destinationAddr) {
+    // Given a neighbor secret
+    this.nextSharedSecret = sharedSecret
+    this.nextHopAddress = destinationAddr
     this.connection = null
   }
 
-  async connect() {
+  async Connect() {
     const connection = await createConnection({
       plugin: getPlugin(),
-      sharedSecret: this.sharedSecret,
-      destinationAccount: this.destinationAccount
+      sharedSecret: this.nextSharedSecret,
+      destinationAccount: this.nextHopAddress
     })
     this.connection = connection
     console.log("Connection created")
   }
 
-  async run() {
+  async Run() {
     const stream = this.connection.createStream()
     console.log("STREAM created")
 

@@ -1,63 +1,100 @@
-const { createConnection} = require('ilp-protocol-stream')
-const { createServer } = require('ilp-protocol-stream')
-
+const {
+  createConnection
+} = require('ilp-protocol-stream')
+const {
+  createServer
+} = require('ilp-protocol-stream')
 const getPlugin = require('ilp-plugin')
-Error.stackTraceLimit = Infinity;
+const utils = require('./utils')
 
-const destinationAccount = "private.moneyd.local.gad58FDk4_f-w9MQYgSt40g91oHkMdCuJekUa97Zlho.6HvCj5FOkbUqXYndxWcihUgt"
-const sharedSecret = Buffer.from([254,244,63,59,37,149,168,44,107,90,157,157,249,61,57,203,136,161,220,188,108,209,70,214,102,48,141,184,214,165,198,170])
+class Forwarder {
+  // TODO: Support generic amount of hops
+  constructor(name, nextHopSharedSecret, nextHopAddress) {
+    this.name = name
+    // Would have to generalize this for a real server
+    // Forwarding server details
+    this.secret = null
+    this.address = null
+    this.server = null
 
-console.log(sharedSecret)
-console.log(destinationAccount)
-
-async function forward(msg) {
-  const connection = await createConnection({
-    plugin: getPlugin(),
-    destinationAccount,
-    sharedSecret
-  })
-
-  const stream = connection.createStream()
-  stream.write(msg)
-  stream.end()
-}
-
-async function run () {
-  const server = await createServer({
-    plugin: getPlugin()
-  })
-
-  // These need to be passed to the client through an authenticated communication channel
-  const { destinationAccount, sharedSecret } = server.generateAddressAndSecret()
-
-  const obj = {
-    destAcct: destinationAccount,
-    sec: sharedSecret
+    // Forwarding client details
+    this.nextHopSharedSecret = nextHopSharedSecret
+    this.nextHopAddress = nextHopAddress
+    this.nextHopConnection = null
   }
 
-  const serializedTestObj = JSON.stringify(obj)
-  console.log(serializedTestObj)
-  console.log('Stream active!')
+  async ServerSetup() {
+    const server = await createServer({
+      plugin: getPlugin()
+    })
 
-  server.on('connection', (connection) => {
-    connection.on('stream', (stream) => {
-      // Set the maximum amount of money this stream can receive
-      stream.setReceiveMax(10000)
+    const addressAndSecret = server.generateAddressAndSecret()
+    this.secret = addressAndSecret.sharedSecret
+    this.address = addressAndSecret.destinationAccount
+    this.server = server
+  }
 
-      stream.on('money', (amount) => {
-        console.log(`got money: ${amount} on stream ${stream.id}`)
-      })
+  async handleAndForwardData(encMsg) {
+    const serialized_decrypted_data = utils.decrypt(encMsg, this.secret)
+    const decrypted_data = JSON.parse(serialized_decrypted_data)
+    const {
+      msg,
+      nextHop
+    } = decrypted_data
 
-      stream.on('data', (chunk) => {
-        console.log(`got data on stream ${stream.id}: ${chunk.toString('utf8')}`)
-        forward(chunk.toString('utf8'))
-      })
+    console.log("received nextHop:" + nextHop)
+    console.log("known nextHop:" + this.nextHopAddress)
 
-      stream.on('end', () => {
-        console.log('stream closed')
+    if (!nextHop) {
+      console.log("done!")
+      console.log("data:" + msg)
+      return
+    }
+
+    const connection = await createConnection({
+      plugin: getPlugin(),
+      sharedSecret: this.nextHopSharedSecret,
+      destinationAccount: this.nextHopAddress
+    })
+    this.nextHopConnection = connection
+
+    const stream = connection.createStream()
+    stream.write(msg)
+    stream.end()
+    this.nextHopConnection.end() // can leverage this in some other way if needed
+  }
+
+  async Run() {
+    this.server.on('connection', (connection) => {
+      connection.on('stream', (stream) => {
+        // Set the maximum amount of money this stream can receive
+        stream.setReceiveMax(10000)
+
+        stream.on('money', (amount) => {
+          console.log(`got money: ${amount} on stream ${stream.id}`)
+        })
+
+        stream.on('data', (chunk) => {
+          // console.log(`got data on stream ${stream.id}: ${chunk.toString('utf8')}`)
+          console.log("CEPA-Forwarder - " + this.name + " has retreived some data")
+          // should not await, because needs to be able to handle multiple streams down the line.
+          this.handleAndForwardData(chunk.toString('utf8'))
+        })
+
+        stream.on('end', () => {
+          console.log('stream closed')
+        })
       })
     })
-  })
+  }
+
+  async Close() {
+    await this.server.close()
+  }
 }
 
-run().catch((err) => console.log(err))
+module.exports = {
+  Forwarder,
+};
+
+// run().catch((err) => console.log(err))
