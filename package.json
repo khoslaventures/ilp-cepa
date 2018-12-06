@@ -10,6 +10,7 @@
   "license": "ISC",
   "private": true,
   "dependencies": {
+    "fs": "0.0.1-security",
     "ilp-plugin": "^3.2.1",
     "ilp-protocol-stream": "^1.8.7"
   },
