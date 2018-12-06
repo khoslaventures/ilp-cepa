@@ -1,44 +1,66 @@
-const { createServer } = require('ilp-protocol-stream')
+const {
+  createServer
+} = require('ilp-protocol-stream')
 const getPlugin = require('ilp-plugin')
-const crypto = require('crypto');
+const utils = require('./utils')
 
-Error.stackTraceLimit = Infinity;
+class StreamServer {
+  constructor (name) {
+    this.name = name
+    this.secret = null
+    this.address = null
+    this.server = null
+  }
+  async ServerSetup () {
+    const server = await createServer({
+      plugin: getPlugin()
+    })
 
-async function run () {
-  const server = await createServer({
-    plugin: getPlugin()
-  })
-
-  // These need to be passed to the client through an authenticated communication channel
-  const { destinationAccount, sharedSecret } = server.generateAddressAndSecret()
-
-  const obj = {
-    destAcct: destinationAccount,
-    sec: sharedSecret
+    const addressAndSecret = server.generateAddressAndSecret()
+    this.address = addressAndSecret.destinationAccount
+    this.secret = addressAndSecret.sharedSecret
+    this.server = server
   }
 
-  const serializedTestObj = JSON.stringify(obj)
-  console.log(serializedTestObj)
-  console.log('Stream active!')
+  handleData (encMsg) {
+    const decryptSerialBytes = utils.decrypt(encMsg, this.secret)
+    const parsedData = JSON.parse(decryptSerialBytes)
+    const {
+      msg,
+      nextHop
+    } = parsedData
 
-  server.on('connection', (connection) => {
-    connection.on('stream', (stream) => {
-      // Set the maximum amount of money this stream can receive
-      stream.setReceiveMax(10000)
+    console.log('received message: ' + msg)
+    console.log('received nextHop: ' + nextHop)
+  }
 
-      stream.on('money', (amount) => {
-        console.log(`got money: ${amount} on stream ${stream.id}`)
-      })
+  async Run () {
+    this.server.on('connection', (connection) => {
+      connection.on('stream', (stream) => {
+        // Set the maximum amount of money this stream can receive
+        stream.setReceiveMax(10000)
 
-      stream.on('data', (chunk) => {
-        console.log(`got data on stream ${stream.id}: ${chunk.toString('utf8')}`)
-      })
+        stream.on('money', (amount) => {
+          console.log(`got money: ${amount} on stream ${stream.id}`)
+        })
 
-      stream.on('end', () => {
-        console.log('stream closed')
+        stream.on('data', (chunk) => {
+          // console.log(`got data on stream ${stream.id}: ${chunk.toString('utf8')}`)
+          console.log('Server - ' + this.name + ' has retreived some data')
+          this.handleData(chunk.toString('utf8'))
+        })
+
+        stream.on('end', () => {
+          console.log('stream closed')
+        })
       })
     })
-  })
-}
+  }
 
-run().catch((err) => console.log(err))
+  async Close () {
+    await this.server.close()
+  }
+}
+module.exports = {
+  StreamServer
+}
