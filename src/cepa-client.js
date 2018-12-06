@@ -2,7 +2,7 @@ const {
   createConnection
 } = require('ilp-protocol-stream')
 const getPlugin = require('ilp-plugin')
-const utils = require('./utils')
+const utils = require('../lib/utils')
 
 class CepaClient {
   // constructor(serialized_input) {

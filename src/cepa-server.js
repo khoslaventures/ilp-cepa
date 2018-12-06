@@ -5,9 +5,9 @@ const {
   createServer
 } = require('ilp-protocol-stream')
 const getPlugin = require('ilp-plugin')
-const utils = require('./utils')
+const utils = require('../lib/utils')
 
-class Forwarder {
+class CepaServer {
   // TODO: Support generic amount of hops
   constructor (name, nextHopSharedSecret, nextHopAddress) {
     this.name = name
@@ -27,7 +27,6 @@ class Forwarder {
     const server = await createServer({
       plugin: getPlugin()
     })
-
 
     const addressAndSecret = server.generateAddressAndSecret()
     this.secret = addressAndSecret.sharedSecret
@@ -82,7 +81,6 @@ class Forwarder {
           this.handleAndForwardData(chunk.toString('utf8'))
         })
 
-
         stream.on('end', () => {
           console.log('stream closed')
         })
@@ -96,7 +94,7 @@ class Forwarder {
 }
 
 module.exports = {
-  Forwarder
+  CepaServer
 }
 
 // run().catch((err) => console.log(err))
