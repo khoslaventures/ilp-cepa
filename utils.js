@@ -1,4 +1,8 @@
 const crypto = require('crypto')
+const request = require('request')
+const http = require('http')
+const {createConnection} = require('ilp-protocol-stream')
+const getPlugin = require('ilp-plugin')
 
 function encrypt (data, key) {
   // Encrypts data with key, using AES-256 in counter mode
@@ -13,8 +17,62 @@ function decrypt (data, key) {
   var decipher = crypto.createDecipher('aes-256-ctr', key)
   var dec = decipher.update(data, 'hex', 'utf8')
   dec += decipher.final('utf8')
-  // console.log("decrypted data is:" + dec)
   return dec
+}
+
+function generateKeyPair() {
+  var prime_length = 160;
+  var diffHell = crypto.createDiffieHellman(prime_length);
+  diffHell.generateKeys('hex');
+  var pubkey =  diffHell.getPublicKey('hex')
+  var privkey = diffHell.getPrivateKey('hex')
+  return [pubkey, privkey]
+}
+
+function postJSONDataToServer(jsonData, url) {
+  request.post(
+    url,
+    { json: jsonData },
+    function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        //console.log(body)
+      }
+    }
+  );
+}
+
+function getJSONDataFromServer (url, callback) {
+    http.get(url,function (res) {
+        res.on('data', function (d) {
+            callback(d);
+        });
+        res.on('error', function (e) {
+            console.error(e);
+        });
+    });
+}
+
+async function connectToNextHop (addr, secret, callback) {
+    const connection = await createConnection({
+      plugin: getPlugin(),
+      sharedSecret: secret,
+      destinationAccount: addr
+    })
+    callback(connection)
+  }
+
+function clearWebServer() {
+  options = {
+    "method":"GET",
+    "url": "http://hololathe.pythonanywhere.com/clear_data",
+    "headers": {
+        "Accept": "text/plain"
+    }
+  }
+request(options, function(err, response) {
+  var out = err || "OK" 
+  console.log(out)
+})
 }
 
 function createOnionPacket (msg, accounts, secrets) {
@@ -26,20 +84,28 @@ function createOnionPacket (msg, accounts, secrets) {
   // Payload includes an onion-wrapped message along with the nextHop.
 
   // TODO: padding
+  console.log("message to onion wrap: " + msg)
   for (i = accounts.length - 1; i >= 0; i--) {
-    let nextHop = i >= accounts.length - 1 ? '' : accounts[i + 1]
-    let encryption_key = secrets[i]
-    let payload = {
-      msg: msg,
+    //console.log(i)
+    var nextHop = i >= accounts.length - 1 ? '' : accounts[i + 1]
+    var encryption_key = secrets[i]
+    var payload = {
+      msg,
       nextHop: nextHop
     }
-    let msg = encrypt(JSON.stringify(payload), encryption_key)
+
+    var msg = encrypt(JSON.stringify(payload), encryption_key)
   }
 
-  // console.log(msg)
+  console.log("onion wrapped message:" + msg)
   return msg
 }
 
 module.exports.decrypt = decrypt
 module.exports.encrypt = encrypt
 module.exports.createOnionPacket = createOnionPacket
+module.exports.generateKeyPair = generateKeyPair
+module.exports.postJSONDataToServer = postJSONDataToServer
+module.exports.getJSONDataFromServer = getJSONDataFromServer
+module.exports.clearWebServer = clearWebServer
+module.exports.connectToNextHop = connectToNextHop

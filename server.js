@@ -20,10 +20,23 @@ class StreamServer {
     this.address = addressAndSecret.destinationAccount
     this.secret = addressAndSecret.sharedSecret
     this.server = server
+
+    // publish public key and address to directory service 
+    const keys = utils.generateKeyPair()
+    this.pubkey = keys[0]
+    this.privkey = keys[1]
+
+    const data_to_publish = {
+      addr: this.address, 
+      pubkey: this.pubkey
+    }
+    utils.postJSONDataToServer(data_to_publish, 'http://hololathe.pythonanywhere.com/publish')
   }
 
   handleData (encMsg) {
+    console.log(encMsg)
     const decryptSerialBytes = utils.decrypt(encMsg, this.secret)
+    console.log(decryptSerialBytes)
     const parsedData = JSON.parse(decryptSerialBytes)
     const {
       msg,

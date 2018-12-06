@@ -11,16 +11,6 @@ class Forwarder {
   // TODO: Support generic amount of hops
   constructor (name, nextHopSharedSecret, nextHopAddress) {
     this.name = name
-    // Would have to generalize this for a real server
-    // Forwarding server details
-    this.secret = null
-    this.address = null
-    this.server = null
-
-    // Forwarding client details
-    this.nextHopSharedSecret = nextHopSharedSecret
-    this.nextHopAddress = nextHopAddress
-    this.nextHopConnection = null
   }
 
   async ServerSetup () {
@@ -33,18 +23,30 @@ class Forwarder {
     this.secret = addressAndSecret.sharedSecret
     this.address = addressAndSecret.destinationAccount
     this.server = server
+
+    //publish public key and address to directory service 
+    const keys = utils.generateKeyPair()
+    this.pubkey = keys[0]
+    this.privkey = keys[1]
+
+    const data_to_publish = {
+      addr: this.address, 
+      pubkey: this.secret
+    }
+
+    utils.postJSONDataToServer(data_to_publish, 'http://hololathe.pythonanywhere.com/publish')
   }
 
   async handleAndForwardData (encMsg) {
     const decryptSerialBytes = utils.decrypt(encMsg, this.secret)
+    console.log(decryptSerialBytes)
     const parsedData = JSON.parse(decryptSerialBytes)
     const {
       msg,
       nextHop
     } = parsedData
 
-    console.log('received nextHop:' + nextHop)
-    console.log('known nextHop:' + this.nextHopAddress)
+    console.log('Received nextHop:' + nextHop)
 
     if (!nextHop) {
       console.log('done!')
@@ -52,17 +54,20 @@ class Forwarder {
       return
     }
 
-    const connection = await createConnection({
-      plugin: getPlugin(),
-      sharedSecret: this.nextHopSharedSecret,
-      destinationAccount: this.nextHopAddress
-    })
-    this.nextHopConnection = connection
+    console.log("Creating next STREAM connection")
+    const url = "http://hololathe.pythonanywhere.com/get_addresses"
+    utils.getJSONDataFromServer(url, function (results) {
+      const serverResponse = JSON.parse(results)
+      const nextHopSecret = Buffer.from(serverResponse[nextHop])
 
-    const stream = connection.createStream()
-    stream.write(msg)
-    stream.end()
-    this.nextHopConnection.end() // can leverage this in some other way if needed
+      utils.connectToNextHop(nextHop, nextHopSecret, function (connection) {
+        console.log('CEPA-Server - STREAM Created')
+        const stream = connection.createStream()
+        stream.write(msg)
+        stream.end()
+        connection.end()
+      })
+    })
   }
 
   async Run () {
@@ -79,6 +84,7 @@ class Forwarder {
           // console.log(`got data on stream ${stream.id}: ${chunk.toString('utf8')}`)
           console.log('CEPA-Forwarder - ' + this.name + ' has retreived some data')
           // should not await, because needs to be able to handle multiple streams down the line.
+          console.log(chunk)
           this.handleAndForwardData(chunk.toString('utf8'))
         })
 

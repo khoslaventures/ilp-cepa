@@ -3,6 +3,7 @@ const {
 } = require('ilp-protocol-stream')
 const getPlugin = require('ilp-plugin')
 const utils = require('./utils')
+const json = require('json')
 
 class CepaClient {
   // constructor(serialized_input) {
@@ -46,50 +47,50 @@ class CepaClient {
 
   // When the client start, assume all the servers have been created
   // TODO: Should take in a map of shared secrets and destinations, which is ordered
-  constructor (nextSharedSecret, nextHopAddress, next2SharedSecret, next2HopAddress, finalSharedSecret, finalHopAddress) {
-    // Given a neighbor secret
-    this.nextSharedSecret = nextSharedSecret
-    this.nextHopAddress = nextHopAddress
+  constructor (params) {
+    // var nextSharedSecret, nextHopAddress, next2SharedSecret, next2HopAddress, finalSharedSecret, finalHopAddress
+    // [nextSharedSecret, nextHopAddress, next2SharedSecret, next2HopAddress, finalSharedSecret, finalHopAddress] = params
+    // // Given a neighbor secret
+    // this.nextSharedSecret = nextSharedSecret
+    // this.nextHopAddress = nextHopAddress
 
-    this.next2SharedSecret = next2SharedSecret
-    this.next2HopAddress = next2HopAddress
+    // this.next2SharedSecret = next2SharedSecret
+    // this.next2HopAddress = next2HopAddress
 
-    this.finalSharedSecret = finalSharedSecret
-    this.finalHopAddress = finalHopAddress
+    // this.finalSharedSecret = finalSharedSecret
+    // this.finalHopAddress = finalHopAddress
 
     this.connection = null
   }
 
-  async Connect () {
-    const connection = await createConnection({
-      plugin: getPlugin(),
-      sharedSecret: this.nextSharedSecret,
-      destinationAccount: this.nextHopAddress
-    })
-    this.connection = connection
-    console.log('Connection created')
-  }
-
   async Run () {
+    const conn = this.connection
+
     const msg = 'hello world'
     console.log('CEPA-Client - Sending Message: ' + msg)
+    
+    //get addresses and secrets from the directory service
+    var addresses = []
+    var secrets = []
+    var url = "http://hololathe.pythonanywhere.com/get_addresses"
+    utils.getJSONDataFromServer(url, function (results) {
+      var serverResponse = JSON.parse(results)
+      Object.keys(serverResponse).forEach(function(key) {
+        addresses.push(key)
+        secrets.push(Buffer.from(serverResponse[key]))
+      })
 
-    const addresses = [this.nextHopAddress, this.next2HopAddress, this.finalHopAddress]
-    const secrets = [this.nextSharedSecret, this.next2SharedSecret, this.finalSharedSecret]
-    if (addresses.length !== secrets.length) {
-      console.log('ERROR: invalid key/secrets initialization')
-    }
-    const onionPacket = utils.createOnionPacket(msg, addresses, secrets)
-
-    const stream = this.connection.createStream()
-    console.log('CEPA-Client - STREAM Created')
-    stream.write(onionPacket)
-    // stream.write('hello\n')
-    // stream.write('here is some more data')
-    // await stream.sendTotal(100)
-    // await stream.sendTotal(200)
-    stream.end()
-    this.connection.end()
+      var firstHopAddr = addresses[0]
+      var firstSecret = secrets[0]
+      utils.connectToNextHop(firstHopAddr, firstSecret, function (connection) {
+        const onionPacket = utils.createOnionPacket(msg, addresses, secrets)
+        const stream = connection.createStream()
+        console.log('CEPA-Client - STREAM Created')
+        stream.write(onionPacket)
+        stream.end()
+        connection.end()
+      })
+    })
   }
 }
 module.exports = {
