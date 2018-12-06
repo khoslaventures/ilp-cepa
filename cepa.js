@@ -28,6 +28,7 @@ class Forwarder {
       plugin: getPlugin()
     })
 
+
     const addressAndSecret = server.generateAddressAndSecret()
     this.secret = addressAndSecret.sharedSecret
     this.address = addressAndSecret.destinationAccount
@@ -80,6 +81,7 @@ class Forwarder {
           // should not await, because needs to be able to handle multiple streams down the line.
           this.handleAndForwardData(chunk.toString('utf8'))
         })
+
 
         stream.on('end', () => {
           console.log('stream closed')
