@@ -5,13 +5,13 @@ const getPlugin = require('ilp-plugin')
 const utils = require('./utils')
 
 class StreamServer {
-  constructor(name) {
+  constructor (name) {
     this.name = name
     this.secret = null
     this.address = null
     this.server = null
   }
-  async ServerSetup() {
+  async ServerSetup () {
     const server = await createServer({
       plugin: getPlugin()
     })
@@ -22,7 +22,7 @@ class StreamServer {
     this.server = server
   }
 
-  handleData(encMsg) {
+  handleData (encMsg) {
     const decryptSerialBytes = utils.decrypt(encMsg, this.secret)
     const parsedData = JSON.parse(decryptSerialBytes)
     const {
@@ -30,11 +30,11 @@ class StreamServer {
       nextHop
     } = parsedData
 
-    console.log("received message: " + msg)
-    console.log("received nextHop: " + nextHop)
+    console.log('received message: ' + msg)
+    console.log('received nextHop: ' + nextHop)
   }
 
-  async Run() {
+  async Run () {
     this.server.on('connection', (connection) => {
       connection.on('stream', (stream) => {
         // Set the maximum amount of money this stream can receive
@@ -46,7 +46,7 @@ class StreamServer {
 
         stream.on('data', (chunk) => {
           // console.log(`got data on stream ${stream.id}: ${chunk.toString('utf8')}`)
-          console.log("Server - " + this.name + " has retreived some data")
+          console.log('Server - ' + this.name + ' has retreived some data')
           this.handleData(chunk.toString('utf8'))
         })
 
@@ -57,10 +57,10 @@ class StreamServer {
     })
   }
 
-  async Close() {
+  async Close () {
     await this.server.close()
   }
 }
 module.exports = {
-  StreamServer,
-};
+  StreamServer
+}

@@ -9,7 +9,7 @@ const utils = require('./utils')
 
 class Forwarder {
   // TODO: Support generic amount of hops
-  constructor(name, nextHopSharedSecret, nextHopAddress) {
+  constructor (name, nextHopSharedSecret, nextHopAddress) {
     this.name = name
     // Would have to generalize this for a real server
     // Forwarding server details
@@ -23,7 +23,7 @@ class Forwarder {
     this.nextHopConnection = null
   }
 
-  async ServerSetup() {
+  async ServerSetup () {
     const server = await createServer({
       plugin: getPlugin()
     })
@@ -34,20 +34,20 @@ class Forwarder {
     this.server = server
   }
 
-  async handleAndForwardData(encMsg) {
-    const serialized_decrypted_data = utils.decrypt(encMsg, this.secret)
-    const decrypted_data = JSON.parse(serialized_decrypted_data)
+  async handleAndForwardData (encMsg) {
+    const decryptSerialBytes = utils.decrypt(encMsg, this.secret)
+    const parsedData = JSON.parse(decryptSerialBytes)
     const {
       msg,
       nextHop
-    } = decrypted_data
+    } = parsedData
 
-    console.log("received nextHop:" + nextHop)
-    console.log("known nextHop:" + this.nextHopAddress)
+    console.log('received nextHop:' + nextHop)
+    console.log('known nextHop:' + this.nextHopAddress)
 
     if (!nextHop) {
-      console.log("done!")
-      console.log("data:" + msg)
+      console.log('done!')
+      console.log('data:' + msg)
       return
     }
 
@@ -64,7 +64,7 @@ class Forwarder {
     this.nextHopConnection.end() // can leverage this in some other way if needed
   }
 
-  async Run() {
+  async Run () {
     this.server.on('connection', (connection) => {
       connection.on('stream', (stream) => {
         // Set the maximum amount of money this stream can receive
@@ -76,7 +76,7 @@ class Forwarder {
 
         stream.on('data', (chunk) => {
           // console.log(`got data on stream ${stream.id}: ${chunk.toString('utf8')}`)
-          console.log("CEPA-Forwarder - " + this.name + " has retreived some data")
+          console.log('CEPA-Forwarder - ' + this.name + ' has retreived some data')
           // should not await, because needs to be able to handle multiple streams down the line.
           this.handleAndForwardData(chunk.toString('utf8'))
         })
@@ -88,13 +88,13 @@ class Forwarder {
     })
   }
 
-  async Close() {
+  async Close () {
     await this.server.close()
   }
 }
 
 module.exports = {
-  Forwarder,
-};
+  Forwarder
+}
 
 // run().catch((err) => console.log(err))
