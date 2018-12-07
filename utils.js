@@ -89,12 +89,27 @@ function createOnionPacket (msg, accounts, secrets) {
     //console.log(i)
     var nextHop = i >= accounts.length - 1 ? '' : accounts[i + 1]
     var encryption_key = secrets[i]
+
     var payload = {
       msg,
+      msg_type: "CEPA",
       nextHop: nextHop
     }
 
+    console.log("encryption start.............")
+    var starttime  = new Date().getTime()
     var msg = encrypt(JSON.stringify(payload), encryption_key)
+    var endtime = new Date().getTime()
+    console.log(endtime - starttime)
+    console.log("encryption end.............")
+
+    console.log("hash start.............")
+    starttime  = new Date().getTime()
+    var h = crypto.createHmac('sha256', secrets[0]).update(msg).digest('hex')
+    endtime = new Date().getTime()
+    console.log(endtime - starttime)
+    console.log("hash end.............")
+
   }
 
   console.log("onion wrapped message:" + msg)

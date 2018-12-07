@@ -38,6 +38,29 @@ const {
 //   })
 // })
 
+// describe('Test ECDHKE', function () {
+//   it('should establish pairwise ephermal keys between client and each router')
+//   utils.clearWebServer();
+
+//   server = new Forwarder('A')
+//   await server.ServerSetup() // setup server secret and address
+//   server.Run()
+
+//   //await new Promise(done => setTimeout(done, 1000));
+
+//   cepa2 = new Forwarder('B', server.secret, server.address)
+//   await cepa2.ServerSetup()
+//   cepa2.Run()
+
+//   //await new Promise(done => setTimeout(done, 1000));
+
+//   cepa1 = new Forwarder('C', cepa2.secret, cepa2.address)
+//   await cepa1.ServerSetup()
+//   cepa1.Run()
+//   cepaClient = new CepaClient([])
+//   await cepaClient.establishKeys()
+// })
+
 describe('Test CEPA Service', function () {
   it('should setup a standard StreamServer, two CEPA Forwarders, and a CEPA client and send an onion msg across', async function () {
 
@@ -49,26 +72,36 @@ describe('Test CEPA Service', function () {
 
     //await new Promise(done => setTimeout(done, 1000));
 
-    cepa2 = new Forwarder('Hop 2', server.secret, server.address)
-    await cepa2.ServerSetup()
-    cepa2.Run()
-
     //await new Promise(done => setTimeout(done, 1000));
 
-    cepa1 = new Forwarder('Hop 1', cepa2.secret, cepa2.address)
+    cepa1 = new Forwarder('Hop 1', server.secret, server.address)
     await cepa1.ServerSetup()
     cepa1.Run()
 
+    cepa2 = new Forwarder('Hop 2', cepa1.secret, cepa1.address)
+    await cepa2.ServerSetup()
+    cepa2.Run()
+
+    cepa3 = new Forwarder('Hop 3', cepa2.secret, cepa2.address)
+    await cepa3.ServerSetup()
+    cepa3.Run()
+
+    cepa4 = new Forwarder('Hop 4', cepa3.secret, cepa3.address)
+    await cepa4.ServerSetup()
+    cepa4.Run()
+
+    cepa5 = new Forwarder('Hop 4', cepa3.secret, cepa3.address)
+    await cepa5.ServerSetup()
+    cepa5.Run()
     
     //await new Promise(done => setTimeout(done, 3000));
     
-
     // sanity check
     // console.log(cepa1.secret, cepa1.address, cepa2.secret, cepa2.address, server.secret, server.address)
     const params = [cepa1.secret, cepa1.address, cepa2.secret, cepa2.address, server.secret, server.address]
     cepaClient = new CepaClient(params)
     
-    //await cepaClient.Connect()
     await cepaClient.Run()
+    //await cepaClient.DHKEServerSetup()
   })
 })

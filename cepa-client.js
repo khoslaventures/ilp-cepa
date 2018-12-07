@@ -1,9 +1,13 @@
 const {
   createConnection
 } = require('ilp-protocol-stream')
+const {
+  createServer
+} = require('ilp-protocol-stream')
 const getPlugin = require('ilp-plugin')
 const utils = require('./utils')
 const json = require('json')
+const crypto = require('crypto');
 
 class CepaClient {
   // constructor(serialized_input) {
@@ -64,8 +68,6 @@ class CepaClient {
   }
 
   async Run () {
-    const conn = this.connection
-
     const msg = 'hello world'
     console.log('CEPA-Client - Sending Message: ' + msg)
     
@@ -79,7 +81,7 @@ class CepaClient {
         addresses.push(key)
         secrets.push(Buffer.from(serverResponse[key]))
       })
-
+      console.log("number of nodes = " + addresses.length + "**********************************")
       var firstHopAddr = addresses[0]
       var firstSecret = secrets[0]
       utils.connectToNextHop(firstHopAddr, firstSecret, function (connection) {
@@ -91,6 +93,79 @@ class CepaClient {
         connection.end()
       })
     })
+  }
+
+  async establishKeys(myAddress, mySecret, myPubKey, myPrivKey) {
+    var ephemeral_keys = []
+    var url = "http://hololathe.pythonanywhere.com/get_addresses"
+    utils.getJSONDataFromServer(url, function (results) {
+      var serverResponse = JSON.parse(results)
+      Object.keys(serverResponse).forEach(function(key) {
+        var routerAddr = key
+        var routerSecret = Buffer.from(serverResponse[key])
+        utils.connectToNextHop(routerAddr, routerSecret, function (connection) {
+        
+        const DHKEpacket = {
+          key: myPubKey,
+          msg_type: "DHKE",
+          senderAddr: myAddress,
+          senderSecret: mySecret
+        }
+
+        const stream = connection.createStream()
+        console.log('CEPA-Client - STREAM Created')
+        stream.write(JSON.stringify(DHKEpacket))
+        stream.end()
+        //connection.end()
+        })
+      })
+    })
+  }
+  
+  async handleDHKEResponse(msg) {
+    const DHKEResponse = JSON.parse(msg)
+    const senderAddr = DHKEResponse['senderAddr']
+    const senderSecret = DHKEResponse['senderSecret']
+    console.log("got senderSecret response")
+    console.log(DHKEResponse)
+  }
+
+  async DHKEServerSetup () {
+
+    this.privateKey = crypto.createECDH('secp521r1')
+    this.publicKey = this.privateKey.generateKeys()
+
+    const server = await createServer({
+      plugin: getPlugin()
+    })
+
+    const addressAndSecret = server.generateAddressAndSecret()
+    this.secret = addressAndSecret.sharedSecret
+    this.address = addressAndSecret.destinationAccount
+    this.server = server
+    this.ephemeral_keys = [] //????
+    console.log("DHKESERVER reset......")
+    this.server.on('connection', (connection) => {
+      console.log("connections.......")
+      connection.on('stream', (stream) => {
+        // Set the maximum amount of money this stream can receive
+        stream.setReceiveMax(10000)
+
+        stream.on('data', (chunk) => {
+          // console.log(`got data on stream ${stream.id}: ${chunk.toString('utf8')}`)
+          console.log('CEPA-Client-DHKE-Server - ' + this.name + ' has retreived some data')
+          // should not await, because needs to be able to handle multiple streams down the line.
+          this.handleDHKEResponse(chunk.toString('utf8'), this.address, this.secret)
+        })
+        stream.on('end', () => {
+          console.log('client stream closed...............................')
+        })
+      })
+    })
+
+    //dont publish client's "server" on the directory service. just pass it around with DHKE messages. 
+    this.establishKeys(this.address, this.secret, this.publicKey, this.privateKey)
+    //utils.postJSONDataToServer(data_to_publish, 'http://hololathe.pythonanywhere.com/publish')
   }
 }
 module.exports = {
