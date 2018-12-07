@@ -57,23 +57,23 @@ resource "digitalocean_droplet" "servers" {
 
   provisioner "remote-exec" {
     inline = [
-      # "export PATH=$PATH:/usr/bin",
-      # "sudo apt -qq update",
-      # "sudo apt -qq install -y nodejs npm",
-      # # Install and run moneyd
-      # "npm install -gs moneyd moneyd-uplink-xrp", # remove silent if bugs
-      # "moneyd xrp:configure --testnet",
-      # "screen -S moneyd -dm moneyd xrp:start --testnet",
-      # "git clone -b akash/tf https://github.com/khoslaventures/ilp-cepa.git",
-      # "cd ilp-cepa",
-      # "npm install -s",
-      # "[ -f /root/inputaddrsecret.json ] && mv /root/inputaddrsecret.json .", // check if file exists and then move.
-      # "[ -f /root/dummy.json ] && mv /root/dummy.json .", // check if file exists and then move.
-      # "screen -S server -dm node run-server.js",
+      "export PATH=$PATH:/usr/bin",
+      "sudo apt -qq update",
+      "sudo apt -qq install -y nodejs npm",
+      # Install and run moneyd
+      "npm install -gs moneyd moneyd-uplink-xrp", # remove silent if bugs
+      "moneyd xrp:configure --testnet",
+      "screen -S moneyd -dm moneyd xrp:start --testnet",
+      "git clone -b akash/tf https://github.com/khoslaventures/ilp-cepa.git",
+      "cd ilp-cepa",
+      "npm install -s",
+      "[ -f /root/inputaddrsecret.json ] && mv /root/inputaddrsecret.json .", // check if file exists and then move.
+      "[ -f /root/dummy.json ] && mv /root/dummy.json .", // check if file exists and then move.
+      "screen -S server -dm node run-server.js",
     ]
   }
 
   provisioner "local-exec" {
-    command ="echo '${self.name}:${self.ipv4_address}' >> parsethis.txt"
+    command ="echo '${self.name}:${self.ipv4_address}' >> server_data.txt"
   }
 }

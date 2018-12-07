@@ -8,7 +8,7 @@ const {
 
 const fs = require('fs')
 
-const inputSecretAndAddress = 'inputaddrsecret.json'
+const inputSecretAndAddress = 'inputaddrsec.json'
 const outputFile = './serveraddrsec.json'
 const dummyFile = './dummy.json'
 

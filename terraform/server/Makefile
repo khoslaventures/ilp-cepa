@@ -15,6 +15,7 @@ destroy:
 		-var "ssh_fingerprint=${SSH_FINGERPRINT}"
 
 apply:
+	rm parsethis.txt
 	# Requires DO_PAT to be set to DigitalOcean API Token and
 	# SSH_FINGERPRINT set to the SSH fingerprint for the given public key
 	terraform apply \
