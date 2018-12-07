@@ -2,7 +2,7 @@ variable "user" {
   default = "root"
 }
 
-resource "digitalocean_droplet" "end" {
+resource "digitalocean_droplet" "server" {
   image = "ubuntu-18-04-x64"
   name = "end"
   region = "nyc1"
@@ -21,20 +21,20 @@ resource "digitalocean_droplet" "end" {
 
   provisioner "remote-exec" {
     inline = [
-      "export PATH=$PATH:/usr/bin",
-      "sudo apt-get update",
-      "sudo apt -qq install -y nodejs npm",
-      # Install and run moneyd
-      "npm install -g moneyd moneyd-uplink-xrp --silent", # remove silent if bugs
-      "moneyd xrp:configure --testnet",
-      "screen -S moneyd -dm moneyd xrp:start --testnet", # May need to wait?
-      "git clone https://github.com/khoslaventures/ilp-cepa.git",
-      "cd ilp-cepa",
-      "pwd"
+      # "export PATH=$PATH:/usr/bin",
+      # "sudo apt-get update",
+      # "sudo apt -qq install -y nodejs npm",
+      # # Install and run moneyd
+      # "npm install -g moneyd moneyd-uplink-xrp --silent", # remove silent if bugs
+      # "moneyd xrp:configure --testnet",
+      # "screen -S moneyd -dm moneyd xrp:start --testnet", # May need to wait?
+      # "git clone https://github.com/khoslaventures/ilp-cepa.git",
+      # "cd ilp-cepa",
+      # "pwd"
     ]
   }
 
   provisioner "local-exec" {
-    command ="scp -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ${var.user}@${digitalocean_droplet.end.ipv4_address}:~/ilp-cepa/package.json ${digitalocean_droplet.end.name}.json"
+    command ="scp -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ${var.user}@${digitalocean_droplet.server.ipv4_address}:~/ilp-cepa/package.json ${digitalocean_droplet.server.name}.json"
   }
 }

@@ -47,12 +47,6 @@ resource "digitalocean_droplet" "servers" {
     "${var.ssh_fingerprint}"
   ]
 
-#  Could have client async wait for files to be produced, and then run the stuff.
-#  Should ignore/send dummy file when ${count.index} is 0
-  provisioner "file" {
-    source      = "${count.index != 0 ? "${var.prefix}${count.index - 1}addrsec.json" : "dummy.json"}"
-    destination = "${count.index != 0 ? "/root/inputaddrsecret.json" : "/root/dummy.json"}"
-  }
 
   connection {
     user = "${var.user}"
@@ -67,18 +61,24 @@ resource "digitalocean_droplet" "servers" {
       "sudo apt -qq update",
       "sudo apt -qq install -y nodejs npm",
       # Install and run moneyd
-      "npm install -g moneyd moneyd-uplink-xrp --silent", # remove silent if bugs
+      "npm install -gs moneyd moneyd-uplink-xrp", # remove silent if bugs
       "moneyd xrp:configure --testnet",
       "screen -S moneyd -dm moneyd xrp:start --testnet",
       "git clone -b akash/tf https://github.com/khoslaventures/ilp-cepa.git",
       "cd ilp-cepa",
-      "npm install --silent",
-      "[ -f /root/inputaddrsecret.json ] && mv /root/inputaddrsecret.json .", // check if file exists and then move.
-      "node run-server.js"
+      "npm install -s",
+      # "[ -f /root/inputaddrsecret.json ] && mv /root/inputaddrsecret.json .", // check if file exists and then move.
+      # "[ -f /root/dummy.json ] && mv /root/dummy.json .", // check if file exists and then move.
+      "screen -S server -dm node run-server.js",
     ]
   }
 
   provisioner "local-exec" {
-    command ="scp -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ${var.user}@${digitalocean_droplet.servers.ipv4_address}:~/ilp-cepa/serveraddrsec.json ${digitalocean_droplet.servers.name}addrsec.json"
+    command ="scp -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ${var.user}@${self.ipv4_address}:~/ilp-cepa/serveraddrsec.json ${self.name}addrsec.json"
+  }
+
+  provisioner "file" {
+    source      = "${count.index != 0 ? "${var.prefix}${count.index - 1}addrsec.json" : "dummy.json"}"
+    destination = "${count.index != 0 ? "/root/ilp-cepa/inputaddrsecret.json" : "/root/ilp-cepa/dummy.json"}"
   }
 }

@@ -8,19 +8,36 @@ const {
 
 const fs = require('fs')
 
-const inputSecretAndAddress = './inputaddrsecret.json'
+const inputSecretAndAddress = 'inputaddrsecret.json'
 const outputFile = './serveraddrsec.json'
+const dummyFile = './dummy.json'
 
 async function run () {
-  var nextHopSharedSecret = null
-  var nextHopAddress = null
-  if (fs.existsSync(inputSecretAndAddress)) {
-    const rawData = fs.readFileSync(inputSecretAndAddress)
-    const jsonData = JSON.parse(rawData)
-    nextHopSharedSecret = Buffer.from(jsonData.shared_secret)
-    nextHopAddress = jsonData.destination_account
-  } else {
-    console.log('CEPA-Server: First Server!')
+  //   if (fs.existsSync(inputSecretAndAddress)) {
+  //     const rawData = fs.readFileSync(inputSecretAndAddress)
+  //     const jsonData = JSON.parse(rawData)
+  //     nextHopSharedSecret = Buffer.from(jsonData.shared_secret)
+  //     nextHopAddress = jsonData.destination_account
+  //   } else {
+  //     console.log('CEPA-Server: First Server!')
+  //   }
+
+  var nextHopSharedSecret
+  var nextHopAddress
+
+  // Bad code, figure out way to use fs.watch
+  while (true) {
+    if (fs.existsSync(inputSecretAndAddress)) {
+      const rawData = fs.readFileSync(inputSecretAndAddress)
+      const jsonData = JSON.parse(rawData)
+      nextHopSharedSecret = Buffer.from(jsonData.shared_secret)
+      nextHopAddress = jsonData.destination_account
+      break
+    } else if (fs.existsSync(dummyFile)) {
+      nextHopSharedSecret = null
+      nextHopAddress = null
+      break
+    }
   }
 
   // Would be smart if TF would send the name over.
