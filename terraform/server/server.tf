@@ -47,7 +47,6 @@ resource "digitalocean_droplet" "servers" {
     "${var.ssh_fingerprint}"
   ]
 
-
   connection {
     user = "${var.user}"
     type = "ssh"
@@ -55,30 +54,26 @@ resource "digitalocean_droplet" "servers" {
     timeout = "2m"
   }
 
+
   provisioner "remote-exec" {
     inline = [
-      "export PATH=$PATH:/usr/bin",
-      "sudo apt -qq update",
-      "sudo apt -qq install -y nodejs npm",
-      # Install and run moneyd
-      "npm install -gs moneyd moneyd-uplink-xrp", # remove silent if bugs
-      "moneyd xrp:configure --testnet",
-      "screen -S moneyd -dm moneyd xrp:start --testnet",
-      "git clone -b akash/tf https://github.com/khoslaventures/ilp-cepa.git",
-      "cd ilp-cepa",
-      "npm install -s",
+      # "export PATH=$PATH:/usr/bin",
+      # "sudo apt -qq update",
+      # "sudo apt -qq install -y nodejs npm",
+      # # Install and run moneyd
+      # "npm install -gs moneyd moneyd-uplink-xrp", # remove silent if bugs
+      # "moneyd xrp:configure --testnet",
+      # "screen -S moneyd -dm moneyd xrp:start --testnet",
+      # "git clone -b akash/tf https://github.com/khoslaventures/ilp-cepa.git",
+      # "cd ilp-cepa",
+      # "npm install -s",
       # "[ -f /root/inputaddrsecret.json ] && mv /root/inputaddrsecret.json .", // check if file exists and then move.
       # "[ -f /root/dummy.json ] && mv /root/dummy.json .", // check if file exists and then move.
-      "screen -S server -dm node run-server.js",
+      # "screen -S server -dm node run-server.js",
     ]
   }
 
   provisioner "local-exec" {
-    command ="scp -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ${var.user}@${self.ipv4_address}:~/ilp-cepa/serveraddrsec.json ${self.name}addrsec.json"
-  }
-
-  provisioner "file" {
-    source      = "${count.index != 0 ? "${var.prefix}${count.index - 1}addrsec.json" : "dummy.json"}"
-    destination = "${count.index != 0 ? "/root/ilp-cepa/inputaddrsecret.json" : "/root/ilp-cepa/dummy.json"}"
+    command ="echo '${self.name}:${self.ipv4_address}' >> parsethis.txt"
   }
 }
