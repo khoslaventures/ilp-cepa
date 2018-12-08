@@ -2,6 +2,8 @@ const {
   CepaServer
 } = require('./src/cepa-server')
 
+const parseJson = require('json-parse-better-errors')
+
 // Look for file in directory. If not there, run with null params.
 // Null params means this is an end server.
 // Read address and secret from json file
@@ -43,7 +45,7 @@ function waitForFile () {
     if (fs.existsSync(inputSecretAndAddress)) {
       const rawData = fs.readFileSync(inputSecretAndAddress)
       console.log(rawData)
-      const jsonData = JSON.parse(rawData)
+      const jsonData = parseJson(rawData)
       nextHopSharedSecret = Buffer.from(jsonData.shared_secret)
       nextHopAddress = jsonData.destination_account
       break

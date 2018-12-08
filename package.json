@@ -12,7 +12,8 @@
   "dependencies": {
     "fs": "0.0.1-security",
     "ilp-plugin": "^3.2.1",
-    "ilp-protocol-stream": "^1.8.7"
+    "ilp-protocol-stream": "^1.8.7",
+    "json-parse-better-errors": "^1.0.2"
   },
   "devDependencies": {
     "mocha": "^5.2.0",
