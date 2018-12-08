@@ -15,7 +15,6 @@ destroy:
 		-var "ssh_fingerprint=${SSH_FINGERPRINT}"
 
 apply:
-	rm parsethis.txt
 	# Requires DO_PAT to be set to DigitalOcean API Token and
 	# SSH_FINGERPRINT set to the SSH fingerprint for the given public key
 	terraform apply \
@@ -32,3 +31,6 @@ validate:
 		-var "pub_key=${HOME}/.ssh/id_ed25519.pub" \
 		-var "pvt_key=${HOME}/.ssh/id_ed25519" \
 		-var "ssh_fingerprint=${SSH_FINGERPRINT}"
+
+clean:
+	rm server_data.txt cepa*

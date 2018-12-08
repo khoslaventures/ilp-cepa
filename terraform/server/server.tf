@@ -67,8 +67,6 @@ resource "digitalocean_droplet" "servers" {
       "git clone -b akash/tf https://github.com/khoslaventures/ilp-cepa.git",
       "cd ilp-cepa",
       "npm install -s",
-      "[ -f /root/inputaddrsecret.json ] && mv /root/inputaddrsecret.json .", // check if file exists and then move.
-      "[ -f /root/dummy.json ] && mv /root/dummy.json .", // check if file exists and then move.
       "screen -S server -dm node run-server.js",
     ]
   }
