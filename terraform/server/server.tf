@@ -70,7 +70,7 @@ resource "digitalocean_droplet" "servers" {
       "tmux start-server",
       "tmux new-session -d -s session",
       "tmux new-window -t session:1",
-      "tmux send-keys -t session:1 nodeSpacerun-server.js C-m"
+      "tmux send-keys -t session:1 node Space run-server.js C-m"
     ]
   }
 

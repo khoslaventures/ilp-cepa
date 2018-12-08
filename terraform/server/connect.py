@@ -49,7 +49,8 @@ with open('server_data.txt') as f:
             # Push the last server key
             prev_server_key = prefix + str(counter - 1) + suffix
             print("Put " + prev_server_key)
-            scp.put(prev_server_key, repo_dir + input_key) # Catch exception
+            scp.put(prev_server_key, input_key) # Catch exception
+            ssh.exec_command("mv " + input_key + " " + repo_dir)
 
         # Pull the current server key
         curr_server_key = prefix + str(counter) + suffix
