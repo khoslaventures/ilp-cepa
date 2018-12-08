@@ -12,35 +12,10 @@ const inputSecretAndAddress = 'inputaddrsec.json'
 const outputFile = './serveraddrsec.json'
 const dummyFile = './dummy.json'
 
+var nextHopSharedSecret = null
+var nextHopAddress = null
+
 async function run () {
-  //   if (fs.existsSync(inputSecretAndAddress)) {
-  //     const rawData = fs.readFileSync(inputSecretAndAddress)
-  //     const jsonData = JSON.parse(rawData)
-  //     nextHopSharedSecret = Buffer.from(jsonData.shared_secret)
-  //     nextHopAddress = jsonData.destination_account
-  //   } else {
-  //     console.log('CEPA-Server: First Server!')
-  //   }
-
-  var nextHopSharedSecret
-  var nextHopAddress
-
-  console.log('Looking for .json secrets and address...')
-  // Bad code, figure out way to use fs.watch
-  while (true) {
-    if (fs.existsSync(inputSecretAndAddress)) {
-      const rawData = fs.readFileSync(inputSecretAndAddress)
-      console.log(rawData)
-      const jsonData = JSON.parse(rawData)
-      nextHopSharedSecret = Buffer.from(jsonData.shared_secret)
-      nextHopAddress = jsonData.destination_account
-      break
-    } else if (fs.existsSync(dummyFile)) {
-      nextHopSharedSecret = null
-      nextHopAddress = null
-      break
-    }
-  }
   console.log('File found, server setting up')
   console.log('NextHop: ' + nextHopAddress)
 
@@ -61,4 +36,22 @@ async function run () {
   await cepa.Run()
 }
 
+function waitForFile () {
+  console.log('Looking for .json secrets and address...')
+  // Bad code, figure out way to use fs.watch
+  while (true) {
+    if (fs.existsSync(inputSecretAndAddress)) {
+      const rawData = fs.readFileSync(inputSecretAndAddress)
+      console.log(rawData)
+      const jsonData = JSON.parse(rawData)
+      nextHopSharedSecret = Buffer.from(jsonData.shared_secret)
+      nextHopAddress = jsonData.destination_account
+      break
+    } else if (fs.existsSync(dummyFile)) {
+      break
+    }
+  }
+}
+
+waitForFile()
 run().catch((err) => console.log(err))
