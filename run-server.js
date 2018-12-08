@@ -25,6 +25,7 @@ async function run () {
   var nextHopSharedSecret
   var nextHopAddress
 
+  console.log('Looking for .json secrets and address...')
   // Bad code, figure out way to use fs.watch
   while (true) {
     if (fs.existsSync(inputSecretAndAddress)) {
@@ -39,6 +40,8 @@ async function run () {
       break
     }
   }
+  console.log('File found, server setting up')
+  console.log('NextHop: ' + nextHopAddress)
 
   // Would be smart if TF would send the name over.
   var cepa = new CepaServer('CEPA', nextHopSharedSecret, nextHopAddress)
@@ -53,14 +56,9 @@ async function run () {
 
   fs.writeFileSync(outputFile, outputData) // not best practice but easier
 
-  cepa.Run()
-  // constructor(serialized_input) {
-  //   const json = JSON.parse(serialized_input)
-  //   console.log(serialized_input)
-  //   this.sharedSecret = Buffer.from(json.shared_secret.data)
-  //   this.destinationAccount = json.destination_account
-  //   this.connection = null
-  // }
+  console.log('CEPA Running!')
+  await cepa.Run()
+  console.log('Should not hit here..')
 }
 
 run().catch((err) => console.log(err))

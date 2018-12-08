@@ -59,7 +59,7 @@ resource "digitalocean_droplet" "servers" {
     inline = [
       "export PATH=$PATH:/usr/bin",
       "sudo apt -qq update",
-      "sudo apt -qq install -y nodejs npm",
+      "sudo apt -qq install -y nodejs npm tmux",
       # Install and run moneyd
       "npm install -gs moneyd moneyd-uplink-xrp", # remove silent if bugs
       "moneyd xrp:configure --testnet",
@@ -67,7 +67,10 @@ resource "digitalocean_droplet" "servers" {
       "git clone -b akash/tf https://github.com/khoslaventures/ilp-cepa.git",
       "cd ilp-cepa",
       "npm install -s",
-      "screen -S server -dm node run-server.js",
+      "tmux start-server",
+      "tmux new-session -d -s session",
+      "tmux new-window -t session:1",
+      "tmux send-keys -t session:1 nodeSpacerun-server.js C-m"
     ]
   }
 

@@ -3,17 +3,18 @@ import json
 import sys
 import paramiko
 import io
+import os
 
 from natsort import natsorted
 from paramiko import SSHClient
 from scp import SCPClient
 
 dummy = "dummy.json"
-
+curr_dir = os.getcwd()
 repo_dir = "~/ilp-cepa/"
 suffix = "addrsec.json"
-server_key = repo_dir + "server" + suffix
-input_key = repo_dir + "input" + suffix
+server_key = "server" + suffix
+input_key = "input" + suffix
 prefix = "cepa"
 
 def progress(filename, size, sent):
@@ -48,11 +49,13 @@ with open('server_data.txt') as f:
             # Push the last server key
             prev_server_key = prefix + str(counter - 1) + suffix
             print("Put " + prev_server_key)
-            scp.put(prev_server_key) # Catch exception
+            scp.put(prev_server_key, repo_dir + input_key) # Catch exception
 
         # Pull the current server key
         curr_server_key = prefix + str(counter) + suffix
         print("Pull " + curr_server_key)
-        scp.get(server_key, curr_server_key)
+        scp.get(repo_dir + server_key)
+        os.rename(server_key, curr_server_key)
+
         counter += 1
 
