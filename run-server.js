@@ -30,6 +30,7 @@ async function run () {
   while (true) {
     if (fs.existsSync(inputSecretAndAddress)) {
       const rawData = fs.readFileSync(inputSecretAndAddress)
+      console.log(rawData)
       const jsonData = JSON.parse(rawData)
       nextHopSharedSecret = Buffer.from(jsonData.shared_secret)
       nextHopAddress = jsonData.destination_account
@@ -58,7 +59,6 @@ async function run () {
 
   console.log('CEPA Running!')
   await cepa.Run()
-  console.log('Should not hit here..')
 }
 
 run().catch((err) => console.log(err))
