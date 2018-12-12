@@ -18,6 +18,7 @@ var nextHopSharedSecret = null
 var nextHopAddress = null
 
 async function run () {
+  waitForFile()
   console.log('File found, server setting up')
   console.log('NextHop: ' + nextHopAddress)
 
@@ -55,5 +56,4 @@ function waitForFile () {
   }
 }
 
-waitForFile()
 run().catch((err) => console.log(err))
