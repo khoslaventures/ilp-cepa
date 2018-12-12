@@ -2,7 +2,7 @@ const {
   createServer
 } = require('ilp-protocol-stream')
 const getPlugin = require('ilp-plugin')
-const utils = require('./utils')
+const utils = require('../lib/utils')
 
 class StreamServer {
   constructor (name) {
@@ -22,18 +22,6 @@ class StreamServer {
     this.server = server
   }
 
-  handleData (encMsg) {
-    const decryptSerialBytes = utils.decrypt(encMsg, this.secret)
-    const parsedData = JSON.parse(decryptSerialBytes)
-    const {
-      msg,
-      nextHop
-    } = parsedData
-
-    console.log('received message: ' + msg)
-    console.log('received nextHop: ' + nextHop)
-  }
-
   async Run () {
     this.server.on('connection', (connection) => {
       connection.on('stream', (stream) => {
@@ -47,7 +35,6 @@ class StreamServer {
         stream.on('data', (chunk) => {
           // console.log(`got data on stream ${stream.id}: ${chunk.toString('utf8')}`)
           console.log('Server - ' + this.name + ' has retreived some data')
-          this.handleData(chunk.toString('utf8'))
         })
 
         stream.on('end', () => {
