@@ -43,8 +43,9 @@ class CepaClient {
   // But ILP did this to make a tradeoff to support more than just cryptocurrencies.
 
   // [1] (actually, could we just send it in the first hop? STREAM is secured...)
-
   // When the client start, assume all the servers have been created
+
+  // Replace this with an arglist
   // TODO: Should take in a map of shared secrets and destinations, which is ordered
   constructor (nextSharedSecret, nextHopAddress, next2SharedSecret, next2HopAddress, finalSharedSecret, finalHopAddress) {
     // Given a neighbor secret
