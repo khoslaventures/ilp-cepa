@@ -1,0 +1,61 @@
+{
+    "regions": [{
+        "name": "New York 1",
+        "slug": "nyc1",
+        "features": ["private_networking", "backups", "ipv6", "metadata", "install_agent", "storage", "image_transfer"],
+        "available": true,
+        "sizes": ["16gb", "2gb", "1gb", "4gb", "8gb", "512mb", "s-1vcpu-3gb", "m-1vcpu-8gb", "s-1vcpu-1gb", "s-1vcpu-2gb", "s-2vcpu-2gb", "s-3vcpu-1gb", "s-2vcpu-4gb", "s-4vcpu-8gb", "s-6vcpu-16gb"]
+    }, {
+        "name": "Singapore 1",
+        "slug": "sgp1",
+        "features": ["private_networking", "backups", "ipv6", "metadata", "install_agent", "storage", "image_transfer"],
+        "available": true,
+        "sizes": ["2gb", "1gb", "4gb", "8gb", "512mb", "s-1vcpu-3gb", "s-1vcpu-1gb", "s-1vcpu-2gb", "s-2vcpu-2gb", "s-3vcpu-1gb", "s-2vcpu-4gb", "s-4vcpu-8gb", "s-6vcpu-16gb"]
+    }, {
+        "name": "London 1",
+        "slug": "lon1",
+        "features": ["private_networking", "backups", "ipv6", "metadata", "install_agent", "storage", "image_transfer"],
+        "available": true,
+        "sizes": ["16gb", "2gb", "1gb", "4gb", "8gb", "512mb", "s-1vcpu-3gb", "m-1vcpu-8gb", "s-1vcpu-1gb", "s-1vcpu-2gb", "s-2vcpu-2gb", "s-3vcpu-1gb", "s-2vcpu-4gb", "s-4vcpu-8gb", "s-6vcpu-16gb"]
+    }, {
+        "name": "New York 3",
+        "slug": "nyc3",
+        "features": ["private_networking", "backups", "ipv6", "metadata", "install_agent", "storage", "image_transfer"],
+        "available": true,
+        "sizes": ["16gb", "2gb", "1gb", "4gb", "8gb", "512mb", "s-1vcpu-3gb", "m-1vcpu-8gb", "s-1vcpu-1gb", "s-1vcpu-2gb", "s-2vcpu-2gb", "s-3vcpu-1gb", "s-2vcpu-4gb", "s-4vcpu-8gb", "s-6vcpu-16gb"]
+    }, {
+        "name": "Amsterdam 3",
+        "slug": "ams3",
+        "features": ["private_networking", "backups", "ipv6", "metadata", "install_agent", "storage", "image_transfer"],
+        "available": true,
+        "sizes": ["16gb", "2gb", "1gb", "4gb", "8gb", "512mb", "s-1vcpu-3gb", "m-1vcpu-8gb", "s-1vcpu-1gb", "s-1vcpu-2gb", "s-2vcpu-2gb", "s-3vcpu-1gb", "s-2vcpu-4gb", "s-4vcpu-8gb", "s-6vcpu-16gb"]
+    }, {
+        "name": "Frankfurt 1",
+        "slug": "fra1",
+        "features": ["private_networking", "backups", "ipv6", "metadata", "install_agent", "storage", "image_transfer"],
+        "available": true,
+        "sizes": ["16gb", "2gb", "1gb", "4gb", "8gb", "512mb", "s-1vcpu-3gb", "s-1vcpu-1gb", "s-1vcpu-2gb", "s-2vcpu-2gb", "s-3vcpu-1gb", "s-2vcpu-4gb", "s-4vcpu-8gb", "s-6vcpu-16gb"]
+    }, {
+        "name": "Toronto 1",
+        "slug": "tor1",
+        "features": ["private_networking", "backups", "ipv6", "metadata", "install_agent", "storage", "image_transfer"],
+        "available": true,
+        "sizes": ["16gb", "2gb", "1gb", "4gb", "8gb", "512mb", "s-1vcpu-3gb", "m-1vcpu-8gb", "s-1vcpu-1gb", "s-1vcpu-2gb", "s-2vcpu-2gb", "s-3vcpu-1gb", "s-2vcpu-4gb", "s-4vcpu-8gb", "s-6vcpu-16gb"]
+    }, {
+        "name": "San Francisco 2",
+        "slug": "sfo2",
+        "features": ["private_networking", "backups", "ipv6", "metadata", "install_agent", "storage", "image_transfer"],
+        "available": true,
+        "sizes": ["16gb", "2gb", "1gb", "4gb", "8gb", "512mb", "s-1vcpu-3gb", "m-1vcpu-8gb", "s-1vcpu-1gb", "s-1vcpu-2gb", "s-2vcpu-2gb", "s-3vcpu-1gb", "s-2vcpu-4gb", "s-4vcpu-8gb", "s-6vcpu-16gb"]
+    }, {
+        "name": "Bangalore 1",
+        "slug": "blr1",
+        "features": ["private_networking", "backups", "ipv6", "metadata", "install_agent", "storage", "image_transfer"],
+        "available": true,
+        "sizes": ["16gb", "2gb", "1gb", "4gb", "8gb", "512mb", "s-1vcpu-3gb", "m-1vcpu-8gb", "s-1vcpu-1gb", "s-1vcpu-2gb", "s-2vcpu-2gb", "s-3vcpu-1gb", "s-2vcpu-4gb", "s-4vcpu-8gb", "s-6vcpu-16gb"]
+    }],
+    "links": {},
+    "meta": {
+        "total": 9
+    }
+}
